@@ -1,16 +1,21 @@
 # Geo International Ports Project
+## Description
+This dataset represents the details of the ports around the world.
+
 ## _Instruction_
-1. Create a custom **role** in Google Cloud with all the required permissions and setup a **service account** with that role.
+1. Create a custom **role** in Google Cloud with all the required permissions to operate in BigQuery and setup a **service account** with that role.
 2. After creating the service account, click the **three-dot menu** under sev and select **Manage keys**.
 3. Click **Add Key** and choose **JSON**. This will download a JSON credentials file to your computer.
 4. Rename the JSON credentials file to **credentials.json** and place it in the parent directory of the project.
 5. Create **dataset** under name **foodpandas_result** and tables below in Google BigQuery (_Due to time constraint, haven't explore how to create dataset and tables automatically_)
+
    i. 1_5_nearest_ports
    ii. 2_largest_number_of_port
    iii. 3_nearest_port 
 6. Open the parent directory of the project in VS code or your preferred code editors and open the **terminal**.
 7. Execute **. start.sh** in the terminal to setup the docker environments.
 8. Setup email alart
+
    i. Setup app passwords in https://security.google.com/settings/security/apppasswords
    ii. Setup smtp under **airflow.cfg** as below (The rests remind the same)
        smtp_host = smtp.gmail.com
