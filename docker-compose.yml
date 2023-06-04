@@ -58,6 +58,8 @@ services:
     build: ./docker/airflow
     restart: always
     container_name: airflow
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS="/opt/airflow/credentials.json"
     volumes:
       - ./mnt/airflow/airflow.cfg:/opt/airflow/airflow.cfg
       - ./mnt/airflow/dags:/opt/airflow/dags

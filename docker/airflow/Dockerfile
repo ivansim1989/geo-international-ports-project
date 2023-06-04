@@ -1,5 +1,5 @@
 # Base Image
-FROM spark-base:latest
+FROM python:3.7-slim-buster
 
 # Arguments that can be set with docker build
 ARG AIRFLOW_VERSION=2.1.4
@@ -9,10 +9,8 @@ ARG AIRFLOW_HOME=/opt/airflow
 ENV AIRFLOW_HOME=${AIRFLOW_HOME}
 
 # Install dependencies and tools
-RUN apt-get update -y && \
-    apt-get upgrade -yqq && \
-    apt-get install -yqq --no-install-recommends \
-    python3-dev \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     wget \
     libczmq-dev \
     curl \
@@ -25,14 +23,11 @@ RUN apt-get update -y && \
     libffi-dev libpq-dev \
     freetds-bin build-essential \
     default-libmysqlclient-dev \
-    apt-utils \
     rsync \
     zip \
     unzip \
-    gcc \
-    vim \
     netcat \
-    && apt-get autoremove -yqq --purge && apt-get clean
+    && apt-get autoremove -y --purge && apt-get clean
 
 # Upgrade pip
 # Create airflow user 
@@ -66,9 +61,5 @@ RUN mkdir -p ${AIRFLOW_HOME}/results
 # Expose ports (just to indicate that this container needs to map port)
 EXPOSE 8080
 
-ENV GOOGLE_APPLICATION_CREDENTIALS="/opt/airflow/credentials.json"
 # Execute start-airflow.sh
 CMD [ "./start-airflow.sh" ]
-
-
-    
