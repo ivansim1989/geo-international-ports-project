@@ -72,7 +72,7 @@ default_args = {
 #     distance_in_meters = int((earth_radius * angular_distance) * 1000)
 #     return distance_in_meters
 
-def fetch_bigquery_data(query, **kwargs):
+def fetch_bigquery_data(query):
     """
     Fetch data from BigQuery and save it to XCom.
 
@@ -81,8 +81,7 @@ def fetch_bigquery_data(query, **kwargs):
     """
     bq_hook = BigQueryHook()
     international_port_df = bq_hook.get_pandas_df(query, dialect='standard')
-    results = international_port_df.to_json(orient='split')
-    kwargs['ti'].xcom_push(key='query_results', value=results)
+    return international_port_df
 
 def write_output_files(output_df, dataset):
     """
@@ -122,7 +121,7 @@ def write_to_bigquery(output_df, dataset):
 
 
 
-def top_n_nearest_port(port_name, country, n, **kwargs):
+def top_n_nearest_port(port_name, country, n, **context):
     """
     Find the top N nearest ports to the specified port.
 
@@ -131,7 +130,7 @@ def top_n_nearest_port(port_name, country, n, **kwargs):
         country (str): The country code of the reference port.
         n (int): The number of nearest ports to find.
     """
-    data = kwargs['ti'].xcom_pull(key='query_results', task_ids='fetch_bigquery_data')
+    data = context['ti'].xcom_pull(task_ids='fetch_bigquery_data')
     data_dict = json.loads(data)
     sj_port_index = data_dict['columns'].index('port_name')
     sj_country_index = data_dict['columns'].index('country')
@@ -161,14 +160,14 @@ def top_n_nearest_port(port_name, country, n, **kwargs):
     write_output_files(top_n_nearest_port, dataset)
 
 
-def largest_number_of_port(n, **kwargs):
+def largest_number_of_port(n, **context):
     """
     Find the countries with the largest number of ports and cargo_wharf.
 
     Args:
         n (int): The number of countries to find.
     """
-    data = kwargs['ti'].xcom_pull(key='query_results', task_ids='fetch_bigquery_data')
+    data = context['ti'].xcom_pull(task_ids='fetch_bigquery_data')
     data_df = pd.read_json(data, orient='split')
     with_wharf_df = data_df[data_df['cargo_wharf'] == True]
     port_count_by_country = with_wharf_df.groupby('country').size().reset_index(name='port_count')
@@ -180,7 +179,7 @@ def largest_number_of_port(n, **kwargs):
     write_to_bigquery(largest_number_of_port, dataset)
     write_output_files(largest_number_of_port, dataset)
 
-def nearest_port(target_lat, target_long, n, **kwargs):
+def nearest_port(target_lat, target_long, n, **context):
     """
     Find the nearest ports with all needed provisions.
 
@@ -189,7 +188,7 @@ def nearest_port(target_lat, target_long, n, **kwargs):
         target_long (float): The longitude of the target location.
         n (int): The number of nearest ports to find.
     """
-    data = kwargs['ti'].xcom_pull(key='query_results', task_ids='fetch_bigquery_data')
+    data = context['ti'].xcom_pull(task_ids='fetch_bigquery_data')
     data_df = pd.read_json(data, orient='split')
     port_with_all_needed = data_df[(data_df['provisions'] == True) & (data_df['water'] == True) & (data_df['fuel_oil'] == True) & (data_df['diesel'] == True)]
 
